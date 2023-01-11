@@ -1,4 +1,5 @@
 import csv
+import io
 
 def get_number_in_range(code, n):
     number = -1
@@ -10,16 +11,18 @@ def get_number_in_range(code, n):
 
 def load_def(defs_filename):
     defs = []
-    with open(defs_filename, 'r') as f:
+    with open(defs_filename, 'r', errors='ignore', encoding='utf8') as f:
+        next(f)
         lines = f.readlines()
+    
     for line in lines:
         _line = line.split(';')
-        code = _line[1]
-        n1 = get_number_in_range(code, _line[2])
-        n2 = get_number_in_range(code, _line[3])
-        region = _line[8].rstrip()
-        district = _line[10].rstrip()
-        provider =_line[6].rstrip()
+        code = _line[0]
+        n1 = get_number_in_range(code, _line[1])
+        n2 = get_number_in_range(code, _line[2])
+        region = _line[5].rstrip()
+        district = 'undefined' #_line[10].rstrip()
+        provider =_line[4].rstrip()
         defs.append({'region': region, 'district': district, 'provider': provider,'n1': n1, 'n2': n2})
     return defs
 
@@ -35,19 +38,26 @@ def get_provider(phone, defs):
             break
     return provider, district, region
 
-def main():
-    defs = load_def('DEF_original.csv')
-    result = []
-    with open('1.csv', 'r') as f:
-        lines = f.readlines()
-        for _line in lines:
-            line = int(_line.strip()[-10:])
-            provider = get_provider(line, defs)
-            result.append([line, provider[0], provider[1], provider[2]])
-    with open('1_result.csv', 'w') as f:
-        csv_writer = csv.writer(f, delimiter = ';')
-        csv_writer.writerows(result)
-    return None
+def split_phones(file) -> io.BytesIO:
+    defs = load_def('DEF-9xx.csv')
+
+    proxy = io.StringIO()
+    writer = csv.writer(proxy, delimiter=';')
+
+    lines = file.readlines()
+    for _line in lines:
+        line = int(_line.strip()[-10:])
+        provider = get_provider(line, defs)
+        print([line, provider[0], provider[1], provider[2]])
+        writer.writerow([line, provider[0], provider[1], provider[2]])
+
+    mem = io.BytesIO()
+    mem.write(proxy.getvalue().encode('utf8', 'replace'))
+    mem.seek(0)
+
+    proxy.close()
+
+    return mem
 
 if __name__ == '__main__':
-    main()
+    split_phones()

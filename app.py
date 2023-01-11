@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, flash, redirect, send_file
-import csv
-import io
+import get_def
 
 app = Flask(__name__)
 
@@ -19,15 +18,11 @@ def get_file():
     flash('No file selected for uploading')
     return redirect(request.url)
 
-  data = file.read() + b'this is added by me'
-
-  buffer = io.BytesIO()
-  buffer.write(data)
-  buffer.seek(0)  
+  buffer = get_def.split_phones(file)
 
   return send_file(
     buffer,
-    download_name='flask_hello.txt',
+    download_name='flask_hello.csv',
     as_attachment=True,
     mimetype='text/csv'
     )
