@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, flash, redirect, send_file, u
 from flask_login import LoginManager, login_required, login_user, current_user, login_remembered
 from Models import user
 import get_def
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -28,7 +29,6 @@ def login():
 
   if (user.check_password(password)):
     login_user(user, remember=True)
-    print('Hello')
     return redirect('/')
 
   return render_template('login.html')
@@ -36,6 +36,7 @@ def login():
 @app.route('/', methods=['get', 'post'])
 @login_required
 def upload():
+  print(request.method)
   if request.method == 'GET':
     return render_template('upload.html')
   
@@ -46,9 +47,10 @@ def upload():
 
   buffer = get_def.split_phones(file)
 
+  name = datetime.now().strftime('%Y%m%d-%H:%M:%S') + '.csv'
   return send_file(
     buffer,
-    download_name='flask_hello.csv',
+    download_name=name,
     as_attachment=True,
     mimetype='text/csv'
     )
