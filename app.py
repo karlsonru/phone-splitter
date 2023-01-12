@@ -66,7 +66,7 @@ def upload():
 
     return send_file(
         buffer,
-        download_name='name',
+        attachment_filename='name',
         as_attachment=True,
         mimetype='text/csv'
         )
