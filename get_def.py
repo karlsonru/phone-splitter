@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
+from __future__ import annotations
 from cgi import FieldStorage
 import csv
 import io
@@ -47,6 +51,3 @@ def split_phones(file: FieldStorage) -> io.BytesIO:
     proxy.close()
 
     return mem
-
-if __name__ == '__main__':
-    split_phones()

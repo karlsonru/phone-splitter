@@ -1,17 +1,27 @@
-from flask import Flask, render_template, request, flash, redirect, send_file, url_for
-from flask_login import LoginManager, login_required, login_user, current_user, login_remembered
-from Models import user
-import get_def
-from datetime import datetime
+# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
+from flask import Flask, render_template, request, redirect, send_file
+from flask_login import LoginManager, UserMixin, login_required, login_user, current_user
+from werkzeug.security import check_password_hash
+from logger import logger
+from get_def import split_phones
 
 app = Flask(__name__)
 
-# 16 MB
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 
-app.secret_key = b'GRhL5mPW'
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB 
+app.secret_key = b'HelloWorld'
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+# Пользователь для проверки авторизации
+class User(UserMixin):
+    def __init__(self, password_hash):
+        self.id = 1
+        self.password_hash = password_hash
+
+user = User('pbkdf2:sha256:260000$vtfTXdL1op0lCRqk$f1526865a50f696bbee79a5485ff19308d9a3a3a0faa20c97127924a7d13a3a9')
 
 @login_manager.user_loader
 def load_user(id):
@@ -19,38 +29,47 @@ def load_user(id):
 
 @app.route('/login', methods=['get', 'post'])
 def login():
-  if (current_user.is_authenticated):
-    return redirect('/')
+    if (current_user.is_authenticated):
+        return redirect('/')
 
-  if request.method == 'GET':
-    return render_template('index.html', current_user=current_user)
+    if request.method == 'GET':
+        return render_template('index.html')
 
-  password = request.form.get('password', None)
-  print(f'password: {password}')
+    candidate_password = request.form.get('password', '').strip()
+    logger.debug(f'Получен запрос на авторизацию. Пароль: {candidate_password}')
 
-  if (user.check_password(password)):
-    login_user(user, remember=True)
-    return redirect('/')
+    if (check_password_hash(user.password_hash,  candidate_password)):
+        login_user(user, remember=True)
+        logger.debug(f'Успешно, запоминаем и возвращаем на главную')
+        return redirect('/')
 
-  return render_template('index.html', current_user=current_user), 401
+    return render_template('index.html'), 401
 
 @app.route('/', methods=['get', 'post'])
 @login_required
 def upload():
-  print(f'request.method: {request.method}')
-  if request.method == 'GET':
-    return render_template('index.html', current_user=current_user)
+    if request.method == 'GET':
+        return render_template('index.html')
   
-  file = request.files.get('phoneList', None)
+    file = request.files.get('phoneList', None)
+    logger.info(f'Получен новый файл: {file.content_length}')
 
-  if file is None:
-    return redirect(request.url)
+    if file is None:
+      return redirect(request.url)
 
-  buffer = get_def.split_phones(file)
+    logger.debug(f'Начинаем читать и делить файл')
+    try:
+        buffer = split_phones(file)
+    except:
+        logger.exception('Ошибка при обработке файла');
+        return 'Internal error', 500
 
-  return send_file(
-    buffer,
-    download_name='name',
-    as_attachment=True,
-    mimetype='text/csv'
-    )
+    return send_file(
+        buffer,
+        download_name='name',
+        as_attachment=True,
+        mimetype='text/csv'
+        )
+
+if __name__ == '__main__':
+    app.run(debug=True)

@@ -4,7 +4,7 @@ async function onSubmit() {
   const isLoadingElem = form.querySelector('#isLoading');
   const errorMsgElem = form.querySelector('#helpMsg');
   const submitBtn = form.querySelector('button[type="submit"]');
-  const  url = location.pathname.includes('login') ? '\/login' : '\/';
+  const url = location.pathname.includes('login') ? '\/login' : '\/';
 
   try {
     isLoadingElem.classList.remove('d-none');

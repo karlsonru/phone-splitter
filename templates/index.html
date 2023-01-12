@@ -2,16 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Phone splitter</title>
-    <link rel="shortcut icon" href="https://survey-studio.com/images/favicon.ico?v=2.00" />
+    <link rel="shortcut icon" href="/static/images/favicon.ico" />
     <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css">
-    <script src="/static/js/onSubmit.js"></script>
-</head>
+
+    <style>
+      input[type="file"]:empty  {
+        color: transparent;
+      }
+      input[type="file"]:valid {
+        color: inherit;
+      }
+    </style>
+  </head>
 <body>
+  <script src="/static/js/onSubmit.js"></script>
   <header style="background-color: brown;">
     <div class="container py-2">
       <div class="d-flex justify-content-start align-items-center">
-        <img src="https://survey-studio.com/images/ss2_logo_white.svg" alt="SURVEYSTUDIO_LOGO" style="height: 40px;">
+        <img src="/static/images/ss2_logo_white.svg" alt="SURVEYSTUDIO_LOGO" style="height: 40px;">
       </div>
     </div>
   </header>
