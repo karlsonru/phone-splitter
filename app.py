@@ -23,34 +23,34 @@ def login():
     return redirect('/')
 
   if request.method == 'GET':
-    return render_template('login.html')
+    return render_template('index.html', current_user=current_user)
 
   password = request.form.get('password', None)
+  print(f'password: {password}')
 
   if (user.check_password(password)):
     login_user(user, remember=True)
     return redirect('/')
 
-  return render_template('login.html')
+  return render_template('index.html', current_user=current_user), 401
 
 @app.route('/', methods=['get', 'post'])
 @login_required
 def upload():
-  print(request.method)
+  print(f'request.method: {request.method}')
   if request.method == 'GET':
-    return render_template('upload.html')
+    return render_template('index.html', current_user=current_user)
   
-  file = request.files.get('phoneListFile', None)
+  file = request.files.get('phoneList', None)
 
   if file is None:
     return redirect(request.url)
 
   buffer = get_def.split_phones(file)
 
-  name = datetime.now().strftime('%Y%m%d-%H:%M:%S') + '.csv'
   return send_file(
     buffer,
-    download_name=name,
+    download_name='name',
     as_attachment=True,
     mimetype='text/csv'
     )
