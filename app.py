@@ -2,14 +2,15 @@
 #!/usr/bin/env python3
 
 from flask import Flask, render_template, request, redirect, send_file
-from flask_login import LoginManager, UserMixin, login_required, login_user, current_user
+from flask_login import LoginManager, UserMixin, login_required, login_user, current_user, logout_user
 from werkzeug.security import check_password_hash
+from datetime import timedelta
 from logger import logger
 from get_def import split_phones
 
 app = Flask(__name__)
 
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB 
+app.config['MAX_CONTENT_LENGTH'] = 8 * 1024 * 1024  # 8 MB
 app.secret_key = b'HelloWorld'
 
 login_manager = LoginManager(app)
@@ -38,8 +39,8 @@ def login():
     candidate_password = request.form.get('password', '').strip()
     logger.debug(f'Получен запрос на авторизацию. Пароль: {candidate_password}')
 
-    if (check_password_hash(user.password_hash,  candidate_password)):
-        login_user(user, remember=True)
+    if (check_password_hash(user.password_hash, candidate_password)):
+        login_user(user, remember=True, duration=timedelta(days=1))
         logger.debug(f'Успешно, запоминаем и возвращаем на главную')
         return redirect('/')
 
@@ -50,23 +51,26 @@ def login():
 def upload():
     if request.method == 'GET':
         return render_template('index.html')
-  
+
     file = request.files.get('phoneList', None)
-    logger.info(f'Получен новый файл: {file.content_length}')
 
     if file is None:
       return redirect(request.url)
 
-    logger.debug(f'Начинаем читать и делить файл')
+    logger.debug(f'Получен новый файл. Начинаем читать и делить файл')
+
     try:
         buffer = split_phones(file)
     except:
         logger.exception('Ошибка при обработке файла');
         return 'Internal error', 500
 
+    logger.debug(f'Отправляем ответ')
+
     return send_file(
         buffer,
-        attachment_filename='name',
+#        attachment_filename='name',
+        download_name='name',
         as_attachment=True,
         mimetype='text/csv'
         )

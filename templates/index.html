@@ -14,6 +14,7 @@
     </style>
   </head>
 <body>
+
   <script src="/static/js/onSubmit.js"></script>
   <header style="background-color: brown;">
     <div class="container py-2">
@@ -22,18 +23,20 @@
       </div>
     </div>
   </header>
-  
+
   <main>
     <div class="container py-3">
       <form class="border p-3" onsubmit="onSubmit()">
         <div class="form-group mb-3">
+
           <h6 class="form-group text-start px-1 mb-3">
             {% if current_user.is_authenticated %}
-              Добавьте файл с телефонами в формате .txt или .csv
+              Загрузите телефоны
             {% else %}
               Введите пароль
             {% endif %}
           </h6>
+
           <div class="input-group">
             {% if current_user.is_authenticated %}
               <input type="file" class="form-control" id="phoneList" name="phoneList" accept=".txt,.csv" required>
@@ -43,12 +46,24 @@
           </div>
           <span id="helpMsg" class="d-block d-none px-1 form-text text-danger">
             {% if current_user.is_authenticated %}
-              Ошибка при отправке. Попробуйте позднее.
+              Ошибка при обработке. Попробуйте позднее.
             {% else %}
               Неверный пароль. Пожалуйста, попробуйте снова.
             {% endif %}
           </span>
+
         </div>
+
+        {% if current_user.is_authenticated %}
+        <div>
+          <ul>
+            <li>Файл в формате .txt или .csv.</li>
+            <li>Телефоны в первой колонке, без заголовков.</li>
+            <li>Максимальный размер 8 Мб.</li>
+          </ul>
+        </div>
+        {% endif %}
+
         <div class="d-flex justify-content-start align-items-center gap-3">
           <button type="submit" class="btn btn-primary">
             {% if current_user.is_authenticated %}
@@ -61,6 +76,7 @@
             <span class="sr-only"></span>
           </div>
         </div>
+
       </form>
     </div>
   </main>
