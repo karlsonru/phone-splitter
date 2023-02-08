@@ -8,5 +8,6 @@ logging.basicConfig(
     )
 
 logger = logging.getLogger()
-log = logging.getLogger('werkzeug')
-log.disabled = True
+
+# отключаем стандартный логгер flask
+logging.getLogger('werkzeug').disabled = True

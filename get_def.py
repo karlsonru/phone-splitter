@@ -18,20 +18,25 @@ def load_def(defs_filename: str) -> list[dict]:
         code = _line[0]
         n1 = int(code + _line[1].zfill(7))
         n2 = int(code + _line[2].zfill(7))
-        region = _line[5].rstrip()
         provider =_line[4].rstrip()
-        defs.append({ 'region': region, 'provider': provider,'n1': n1, 'n2': n2 })
+        region = _line[5].rstrip()
+        timezone = _line[7].rstrip()
+        defs.append({ 'region': region, 'provider': provider,'n1': n1, 'n2': n2, 'timezone': timezone })
     return defs
+
+DEFs = load_def('DEF-9xx_latest.csv')
 
 def get_provider(phone: int, defs: list[dict]) -> tuple[str]:
     provider = 'NA'
     region = 'NA'
+    timezone = 'NA'
     for p in defs:
         if phone >= p['n1'] and phone <= p['n2']:
             provider = p['provider']
             region = p['region']
+            timezone = int(p['timezone']) - 3
             break
-    return provider, region
+    return provider, region, timezone
 
 def split_phones(file: FieldStorage) -> io.BytesIO:
     defs = load_def('DEF-9xx_latest.csv')
@@ -43,19 +48,20 @@ def split_phones(file: FieldStorage) -> io.BytesIO:
     logger.debug(f'Количество строк: {len(lines)}')
     errors = 0
 
+    writer.writerow(['Телефон', 'Оператор', 'Регион', 'Часовой пояс (МСК)'])
     for _line in lines:
         try:
             line = int(_line.strip()[-10:])
-            provider, region = get_provider(line, defs)
+            provider, region, timezone = get_provider(line, defs)
             
             if len(_line.strip()) == 11:
                 phone = '7' + str(line)
             else:
                 phone = line
 
-            writer.writerow([phone, provider, region])
+            writer.writerow([phone, provider, region, timezone])
         except:
-            writer.writerow([str(_line, 'utf-8', 'ignore'), 'ERROR', 'ERROR'])
+            writer.writerow([str(_line, 'utf-8', 'ignore'), 'ERROR', 'ERROR', 'ERROR'])
             errors += 1
             pass
 

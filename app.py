@@ -2,7 +2,7 @@
 #!/usr/bin/env python3
 
 from flask import Flask, render_template, request, redirect, send_file
-from flask_login import LoginManager, UserMixin, login_required, login_user, current_user, logout_user
+from flask_login import LoginManager, UserMixin, login_required, login_user, current_user
 from werkzeug.security import check_password_hash
 from datetime import timedelta
 from logger import logger

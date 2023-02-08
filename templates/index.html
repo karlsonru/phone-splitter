@@ -65,14 +65,14 @@
         {% endif %}
 
         <div class="d-flex justify-content-start align-items-center gap-3">
-          <button type="submit" class="btn btn-primary">
+          <button type="submit" class="btn" style="color: #fff; background-color: #ff9800 !important; border-color: #ff9800 !important;">
             {% if current_user.is_authenticated %}
               Загрузить
             {% else %}
               Подтвердить
             {% endif %}
           </button>
-          <div class="spinner-border text-primary d-none" id="isLoading" role="status">
+          <div class="spinner-border d-none" style="color: #ff9800 !important;" id="isLoading" role="status">
             <span class="sr-only"></span>
           </div>
         </div>
